@@ -12,15 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id(); // Auto-increment primary key
-            $table->unsignedBigInteger('user_id'); // Foreign key for users
-            $table->decimal('amount', 10, 2); // Amount with 2 decimal places
-            $table->string('status')->default('pending'); // Payment status
-            $table->string('transaction_id')->unique(); // Unique transaction ID
-            $table->text('details')->nullable(); // Optional payment details
-            $table->timestamps(); // created_at & updated_at
-
-            // Foreign key constraint (Assuming users table exists)
+            $table->id(); 
+            $table->unsignedBigInteger('user_id'); 
+            $table->decimal('amount', 10, 2); 
+            $table->string('status')->default('pending'); 
+            $table->string('transaction_id')->unique(); 
+            $table->text('details')->nullable(); 
+            $table->timestamps(); 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

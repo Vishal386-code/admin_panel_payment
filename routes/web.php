@@ -25,6 +25,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/payment', [PaymentController::class, 'index'])->name('admin.payment');
     Route::delete('/admin/payment/{id}', [PaymentController::class, 'destroy'])->name('admin.payment.destroy');
+    Route::post('/admin/payment/store', [PaymentController::class, 'store'])->name('admin.payment.store');
+    Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('admin.payment.edit');
+    Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('admin.payment.update');
     
 });
 

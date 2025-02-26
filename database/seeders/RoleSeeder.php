@@ -18,12 +18,12 @@ class RoleSeeder extends Seeder
         ]);
 
         // Default Admin User
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'role_id' => 2,
-        ]);
+        // User::create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@example.com',
+        //     'password' => Hash::make('password'),
+        //     'role_id' => 2,
+        // ]);
     }
 }
 

@@ -4,9 +4,14 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <p class="mb-4 text-muted fw-bold">
-        Dashboard → <span class="text-primary">Payment</span>
-    </p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="mb-0 text-muted fw-bold">
+            Dashboard → <span class="text-primary">Payment</span>
+        </p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+            + Add Payment
+        </button>
+    </div>
 
     <table id="payment-table" class="table table-bordered">
         <thead>
@@ -14,8 +19,9 @@
                 <th>Id</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Transaction Id</th>
-                <th>Details</th>
+                <th>Account Name</th>
+                <th>Source</th>
+                <th>Client Name</th>
                 <th>Created At</th>
                 <th>Action</th>
             </tr>
@@ -23,74 +29,109 @@
     </table>
 </div>
 
+<!-- Include Modal -->
+@include('admin.payment.modal.payment-add')
+
+<!-- Include Edit Payment Modal -->
+@include('admin.payment.modal.payment-edit')
+
 <script>
-    $(document).ready(function () {
-        $('#payment-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '{{ route("admin.payment") }}',
-            columns: [
-                { data: 'id', name: 'id' },
-                { data: 'amount', name: 'amount' },
-                { 
-                    data: 'status', 
-                    name: 'status',
-                    render: function (data, type, row) {
-                        let colorClass = '';
-                        if (data.toLowerCase() === 'completed') {
-                            colorClass = 'text-success'; 
-                        } else if (data.toLowerCase() === 'failed') {
-                            colorClass = 'text-danger';
-                        } else if (data.toLowerCase() === 'pending') {
-                            colorClass = 'text-warning'; 
-                        }
-                        return `<span class="${colorClass} fw-bold">${data}</span>`;
-                    }
-                },
-                { data: 'transaction_id', name: 'transaction_id' },
-                { data: 'details', name: 'details' },
-                { data: 'created_at', name: 'created_at' },
-                { data: 'action', name: 'action', orderable: false, searchable: false },
-            ]
-        });
+   $(document).ready(function() {
+    let table = $('#payment-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("admin.payment") }}',
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'amount', name: 'amount' },
+            { 
+                data: 'status', 
+                name: 'status',
+                render: function (data) {
+                    let colorClass = '';
+                    if (data.toLowerCase() === 'completed') colorClass = 'text-success';
+                    else if (data.toLowerCase() === 'failed') colorClass = 'text-danger';
+                    else if (data.toLowerCase() === 'pending') colorClass = 'text-warning';
+                    return `<span class="${colorClass} fw-bold">${data}</span>`;
+                }
+            },
+            { data: 'account_name', name: 'account_name' },
+            { data: 'source', name: 'source' },
+            { data: 'client_name', name: 'client_name' },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'action', name: 'action', orderable: false, searchable: false },
+        ]
+    });
 
+    $(document).on('click', '.edit-btn', function () {
+    let paymentId = $(this).data('id');
 
-        // Delete Button Click Event with SweetAlert2
-        $(document).on('click', '.delete-btn', function () {
-            let paymentId = $(this).data('id');
+    $.ajax({
+        url: `/payments/${paymentId}/edit`,
+        type: 'GET',
+        success: function (data) {
+            $('#editPaymentId').val(data.id);
+            $('#editAmount').val(data.amount);
+            $('#editStatus').val(data.status);
+            $('#editAccountName').val(data.account_name);
+            $('#editSource').val(data.source);
+            $('#editClientName').val(data.client_name);
+
+            $('#editPaymentModal').modal('show');
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: 'Error fetching payment details. Please try again.',
+            });
+            console.error(xhr.responseText);
+        }
+    });
+});
+
+// Update Payment
+$('#editPaymentForm').on('submit', function (e) {
+    e.preventDefault();
+    
+    let paymentId = $('#editPaymentId').val();
+    let formData = $(this).serialize();
+
+    $.ajax({
+        url: `/payments/${paymentId}`,
+        type: 'PUT',
+        data: formData,
+        success: function (response) {
+            $('#editPaymentModal').modal('hide');
 
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/admin/payment/${paymentId}`,
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') 
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                Swal.fire('Deleted!', response.message, 'success');
-                                $("#payment-table").DataTable().ajax.reload();
-                            } else {
-                                Swal.fire('Error!', response.message, 'error');
-                            }
-                        },
-                        error: function () {
-                            Swal.fire('Error!', 'Something went wrong!', 'error');
-                        }
-                    });
-                }
+                icon: 'success',
+                title: 'Updated!',
+                text: response.message,
+                timer: 2000,
+                showConfirmButton: false
             });
-        });
 
+            table.ajax.reload();
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: 'Error updating payment. Please check your inputs.',
+            });
+            console.error(xhr.responseText);
+        }
     });
+});
+
+
+    // Reset Modal Form on Close
+    $('#editPaymentModal').on('hidden.bs.modal', function () {
+        $('#editPaymentForm')[0].reset();
+    });
+});
+
+
 </script>
 @endsection

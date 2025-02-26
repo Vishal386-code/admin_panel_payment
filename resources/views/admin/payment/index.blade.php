@@ -37,100 +37,32 @@
 
 <script>
    $(document).ready(function() {
-    let table = $('#payment-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: '{{ route("admin.payment") }}',
-        columns: [
-            { data: 'id', name: 'id' },
-            { data: 'amount', name: 'amount' },
-            { 
-                data: 'status', 
-                name: 'status',
-                render: function (data) {
-                    let colorClass = '';
-                    if (data.toLowerCase() === 'completed') colorClass = 'text-success';
-                    else if (data.toLowerCase() === 'failed') colorClass = 'text-danger';
-                    else if (data.toLowerCase() === 'pending') colorClass = 'text-warning';
-                    return `<span class="${colorClass} fw-bold">${data}</span>`;
-                }
-            },
-            { data: 'account_name', name: 'account_name' },
-            { data: 'source', name: 'source' },
-            { data: 'client_name', name: 'client_name' },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'action', name: 'action', orderable: false, searchable: false },
-        ]
+        let table = $('#payment-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route("admin.payment") }}',
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'amount', name: 'amount' },
+                { 
+                    data: 'status', 
+                    name: 'status',
+                    render: function (data) {
+                        let colorClass = '';
+                        if (data.toLowerCase() === 'completed') colorClass = 'text-success';
+                        else if (data.toLowerCase() === 'failed') colorClass = 'text-danger';
+                        else if (data.toLowerCase() === 'pending') colorClass = 'text-warning';
+                        return `<span class="${colorClass} fw-bold">${data}</span>`;
+                    }
+                },
+                { data: 'account_name', name: 'account_name' },
+                { data: 'source', name: 'source' },
+                { data: 'client_name', name: 'client_name' },
+                { data: 'created_at', name: 'created_at' },
+                { data: 'action', name: 'action', orderable: false, searchable: false },
+            ]
+        });
     });
-
-    $(document).on('click', '.edit-btn', function () {
-    let paymentId = $(this).data('id');
-
-    $.ajax({
-        url: `/payments/${paymentId}/edit`,
-        type: 'GET',
-        success: function (data) {
-            $('#editPaymentId').val(data.id);
-            $('#editAmount').val(data.amount);
-            $('#editStatus').val(data.status);
-            $('#editAccountName').val(data.account_name);
-            $('#editSource').val(data.source);
-            $('#editClientName').val(data.client_name);
-
-            $('#editPaymentModal').modal('show');
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops!',
-                text: 'Error fetching payment details. Please try again.',
-            });
-            console.error(xhr.responseText);
-        }
-    });
-});
-
-// Update Payment
-$('#editPaymentForm').on('submit', function (e) {
-    e.preventDefault();
-    
-    let paymentId = $('#editPaymentId').val();
-    let formData = $(this).serialize();
-
-    $.ajax({
-        url: `/payments/${paymentId}`,
-        type: 'PUT',
-        data: formData,
-        success: function (response) {
-            $('#editPaymentModal').modal('hide');
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Updated!',
-                text: response.message,
-                timer: 2000,
-                showConfirmButton: false
-            });
-
-            table.ajax.reload();
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Update Failed',
-                text: 'Error updating payment. Please check your inputs.',
-            });
-            console.error(xhr.responseText);
-        }
-    });
-});
-
-
-    // Reset Modal Form on Close
-    $('#editPaymentModal').on('hidden.bs.modal', function () {
-        $('#editPaymentForm')[0].reset();
-    });
-});
 
 
 </script>

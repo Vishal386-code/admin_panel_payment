@@ -11,19 +11,25 @@
 
         <!-- Payment Summary Row -->
         <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card shadow-lg border-0 rounded p-4 text-center">
                     <h2 class="h5 text-gray-800">Pending Payments</h2>
                     <p class="display-4 text-warning fw-bold">{{ $pendingPayments }}</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card shadow-lg border-0 rounded p-4 text-center">
                     <h2 class="h5 text-gray-800">Completed Payments</h2>
                     <p class="display-4 text-success fw-bold">{{ $completePayments }}</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card shadow-lg border-0 rounded p-4 text-center">
+                    <h2 class="h5 text-gray-800">Failed Payments</h2>
+                    <p class="display-4 text-danger fw-bold">{{ $failedPayments }}</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card shadow-lg border-0 rounded p-4 text-center">
                     <h2 class="h5 text-gray-800">Failed Payments</h2>
                     <p class="display-4 text-danger fw-bold">{{ $failedPayments }}</p>
